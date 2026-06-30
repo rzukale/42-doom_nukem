@@ -10,8 +10,8 @@ Download the installer from https://sourceforge.net/projects/mingw/files/Install
 This project assumes that it is installed to C:\MinGW
 - In Linux environment you will need `gcc` compiler to be installed.
 
-	sudo apt-get update
-	sudo apt-get install build-essential
+	sudo apt update
+	sudo apt install build-essential libsdl2-dev libsdl2-mixer-dev
 
 - Run `make` in the root to compile the program.
 - Run maps by piping them to program. ie.
