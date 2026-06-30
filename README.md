@@ -11,6 +11,7 @@ This project assumes that it is installed to C:\MinGW
 - In Linux environment you will need `gcc` compiler to be installed.
 
 	sudo apt update
+
 	sudo apt install build-essential libsdl2-dev libsdl2-mixer-dev
 
 - Run `make` in the root to compile the program.
