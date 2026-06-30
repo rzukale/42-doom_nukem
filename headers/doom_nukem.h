@@ -26,8 +26,8 @@
 #  define CREATE_FILE O_CREAT
 #  define TRUNCATE O_TRUNC
 #  include <unistd.h>
-#  include "../SDL2/include/SDL2/SDL.h"
-#  include "../SDL2_mixer/include/SDL2/SDL_mixer.h"
+#  include "SDL.h"
+#  include "SDL_mixer.h"
 #  include "../headers/syscalls_windows.h"
 # elif defined(_WIN32) || defined(WIN32)
 #  include <io.h>

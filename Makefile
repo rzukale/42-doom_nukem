@@ -326,71 +326,64 @@ HEADERS = \
 	headers$(SLASH)typewriter.h
 
 WIN_INCLUDE_PATHS = \
-	-ISDL2-2.0.14\i686-w64-mingw32\include\SDL2 \
-	-ISDL2_mixer-2.0.4\i686-w64-mingw32\include\SDL2 \
-	-Ilibft
-LINUX_INCLUDE_PATHS = -I$(SDL_INC) -I$(SDL_MIXER_INC) -Ilibft/
+    -ISDL2-2.0.14\i686-w64-mingw32\include\SDL2 \
+    -ISDL2_mixer-2.0.4\i686-w64-mingw32\include\SDL2 \
+    -Ilibft
 
 WIN_LIBRARY_PATHS = \
-	-LSDL2-2.0.14\i686-w64-mingw32\lib \
-	-LSDL2_mixer-2.0.4\i686-w64-mingw32\lib \
-	-Llibft
-LINUX_LINK_FLAGS = -lSDL2 -lSDL2_mixer -lft -lpthread -lm
+    -LSDL2-2.0.14\i686-w64-mingw32\lib \
+    -LSDL2_mixer-2.0.4\i686-w64-mingw32\lib \
+    -Llibft
 
 CC = gcc
 
 ifeq ($(OS),Windows_NT)
-	TARGET_SYSTEM := Windows
+    TARGET_SYSTEM := Windows
 else
-	TARGET_SYSTEM := $(shell uname -s)
-	TARGET_SYSTEM := $(patsubst CYGWIN%,Cygwin,$(TARGET_SYSTEM))
-	TARGET_SYSTEM := $(patsubst MSYS%,MSYS,$(TARGET_SYSTEM))
-	TARGET_SYSTEM := $(patsubst MINGW%,MSYS,$(TARGET_SYSTEM))
+    TARGET_SYSTEM := $(shell uname -s)
+    TARGET_SYSTEM := $(patsubst CYGWIN%,Cygwin,$(TARGET_SYSTEM))
+    TARGET_SYSTEM := $(patsubst MSYS%,MSYS,$(TARGET_SYSTEM))
+    TARGET_SYSTEM := $(patsubst MINGW%,MSYS,$(TARGET_SYSTEM))
 endif
 
 ifeq ($(TARGET_SYSTEM),Windows)
-	NAME = doom-nukem.exe
-	INCLUDES = $(WIN_INCLUDE_PATHS)
-	LIBS = $(WIN_LIBRARY_PATHS)
-	CFLAGS = -Wall -Wextra -Werror -O1
-	LDFLAGS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer -lft -lpthread -lm
-	SDL_NEW = SDL2-2.0.14\i686-w64-mingw32
-	SDL_MIXER_NEW = SDL2_mixer-2.0.4\i686-w64-mingw32
-	SLASH = \\
-	MKDIR = mkdir
-	RM = del /s/q
-	RESET := [0m
-	RED := [31m
-	GREEN := [32m
-	YELLOW := [33m
-	BLUE := [34m
-	MAGENTA := [35m
-	CYAN := [36m
-	WHITE := [37m
+    NAME = doom-nukem.exe
+    INCLUDES = $(WIN_INCLUDE_PATHS)
+    LIBS = $(WIN_LIBRARY_PATHS)
+    CFLAGS = -Wall -Wextra -Werror -O1
+    LDFLAGS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer -lft -lpthread -lm
+    SDL_NEW = SDL2-2.0.14\i686-w64-mingw32
+    SDL_MIXER_NEW = SDL2_mixer-2.0.4\i686-w64-mingw32
+    SDL_DEPS = $(SDL_NEW) $(SDL_MIXER_NEW)
+    SLASH = \\
+    MKDIR = mkdir
+    RM = del /s/q
+    RESET := [0m
+    RED := [31m
+    GREEN := [32m
+    YELLOW := [33m
+    BLUE := [34m
+    MAGENTA := [35m
+    CYAN := [36m
+    WHITE := [37m
 else
-	ABS_DIR = $(shell pwd)
-	INCLUDES = $(LINUX_INCLUDE_PATHS)
-	LIBS = $(shell $(ABS_DIR)/SDL2/bin/sdl2-config --libs) -L$(SDL_MIXER_NEW)lib -Llibft/
-	CFLAGS = -Wall -Wextra -Werror $(shell $(ABS_DIR)/SDL2/bin/sdl2-config --cflags) -O3
-	LDFLAGS = $(LINUX_LINK_FLAGS)
-	SLASH = /
-	MKDIR := mkdir -p
-	RM = /bin/rm -rf
-	RESET = "\033[0m"
-	RED = "\033[0;31m"
-	GREEN = "\033[0;32m"
-	YELLOW = "\033[0;33m"
-	BLUE = "\033[0;34m"
-	MAGENTA = "\033[0;35m"
-	CYAN = "\033[0;36m"
-	WHITE = "\033[0;37m"
-	SDL_ORIG = $(ABS_DIR)/SDL2-2.0.14/
-	SDL_NEW = $(ABS_DIR)/SDL2/
-	SDL_INC = SDL2/include/SDL2/
-	SDL_MIXER_ORIG = $(ABS_DIR)/SDL2_mixer-2.0.4/
-	SDL_MIXER_NEW = $(ABS_DIR)/SDL2_mixer/
-	SDL_MIXER_INC = SDL2_mixer/include/SDL2/
-	CORES = $(shell echo 2+$(shell cat /proc/cpuinfo | grep processor | wc -l) | bc)
+    ABS_DIR = $(shell pwd)
+    INCLUDES = -Ilibft/
+    CFLAGS = -Wall -Wextra -Werror -std=c11 $(shell sdl2-config --cflags) -O3
+    LIBS = -Llibft/
+    LDFLAGS = $(shell sdl2-config --libs) -lSDL2_mixer -lft -lpthread -lm
+    SDL_DEPS =
+    SLASH = /
+    MKDIR := mkdir -p
+    RM = /bin/rm -rf
+    RESET = "\033[0m"
+    RED = "\033[0;31m"
+    GREEN = "\033[0;32m"
+    YELLOW = "\033[0;33m"
+    BLUE = "\033[0;34m"
+    MAGENTA = "\033[0;35m"
+    CYAN = "\033[0;36m"
+    WHITE = "\033[0;37m"
 endif
 
 S = srcs
@@ -403,53 +396,17 @@ OBJ = $(SRC:$S%=$O%.o)
 
 all: $(NAME)
 
-debug: CFLAGS = -Wall -Wextra -Werror -O0 -g -ggdb3
-debug: cleanobj cleanobjdir $(NAME)
+debug: CFLAGS = -Wall -Wextra -Werror -std=c11 -O0 -g -ggdb3
+debug: cleanobjdir $(NAME)
 
 $(SDL_NEW):
-ifeq ($(TARGET_SYSTEM), Linux)
-	@if [ ! $(shell command -v wget 2> /dev/null) ]; then \
-	sudo apt-get install wget -y; \
-	fi
-	@if [ ! -f "SDL2-2.0.14.tar.gz" ]; then \
-	wget https://www.libsdl.org/release/SDL2-2.0.14.tar.gz; \
-	fi
-	@if [ ! -d "$(SDL_ORIG)" ]; then \
-	tar -xzf SDL2-2.0.14.tar.gz; \
-	fi
-	@if [ ! -d "$(SDL_NEW)" ] ; then \
-	mkdir -p $(SDL_NEW); \
-	cd $(SDL_NEW) && \
-	$(SDL_ORIG)./configure --prefix=$(SDL_NEW) && \
-	make -j$(CORES) && make install ; \
-	else    \
-	make -j$(CORES) -C $(SDL_NEW) ; \
-	fi
-else
+ifeq ($(TARGET_SYSTEM), Windows)
 	@IF NOT EXIST $(SDL_NEW) ( install.bat )\
 	ELSE ECHO $(GREEN)"Folder exists."$(RESET)
 endif
 
 $(SDL_MIXER_NEW):
-ifeq ($(TARGET_SYSTEM), Linux)
-	@if [ ! $(shell command -v wget 2> /dev/null) ]; then \
-	sudo apt-get install wget -y; \
-	fi
-	@if [ ! -f "SDL2_mixer-2.0.4.tar.gz" ]; then \
-	wget https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.4.tar.gz; \
-	fi
-	@if [ ! -d "$(SDL_MIXER_ORIG)" ]; then \
-	tar -xzf SDL2_mixer-2.0.4.tar.gz; \
-	fi
-	@if [ ! -d "$(SDL_MIXER_NEW)" ] ; then \
-	mkdir -p $(SDL_MIXER_NEW); \
-	cd $(SDL_MIXER_NEW) && \
-	$(SDL_MIXER_ORIG)./configure --prefix $(SDL_MIXER_NEW) && \
-	make -j$(CORES) && make install; \
-	else \
-	make -j$(CORES) -C $(SDL_MIXER_NEW) ; \
-	fi
-else
+ifeq ($(TARGET_SYSTEM), Windows)
 	@IF NOT EXIST $(SDL_MIXER_NEW) ( install_mixer.bat )\
 	ELSE ECHO $(GREEN)"Folder exists."$(RESET)
 endif
@@ -476,7 +433,7 @@ $(OBJ): $O%.o: $S% $(HEADERS)
 $(LIBFT):
 	make -C libft
 
-$(NAME): $(LIBFT) $(SDL_NEW) $(SDL_MIXER_NEW) $(OBJ)
+$(NAME): $(LIBFT) $(SDL_DEPS) $(OBJ)
 	$(CC) -o $@ $(INCLUDES) $(LIBS) $(CFLAGS) $(OBJ) $(LDFLAGS)
 	@echo $(GREEN)Compiled executable $(NAME).
 	@echo Run the map files $(NAME) map_files/map.DN or run them by starting executable.
@@ -487,21 +444,13 @@ ifneq ($(wildcard $(OBJ)),)
 endif
 
 cleanobjdir: cleanobj
-ifeq ($(TARGET_SYSTEM), Linux)
-	@$(RM) $O
-else
+ifeq ($(TARGET_SYSTEM), Windows)
 	@IF EXIST $O ( rd /s /q "$O" )
+else
+	@$(RM) $O
 endif
 
 clean: cleanobjdir
-ifeq ($(TARGET_SYSTEM), Linux)
-	@if [ -d "$(SDL_NEW)" ] ; then \
-	make -C $(SDL_NEW) clean ; \
-	fi;
-	@if [ -d "$(SDL_MIXER_NEW)" ] ; then \
-	make -C $(SDL_MIXER_NEW) clean ; \
-	fi;
-endif
 	@make -C libft clean
 	@echo $(GREEN)Cleaned projects from object files.$(RESET)
 
@@ -517,12 +466,6 @@ ifeq ($(TARGET_SYSTEM), Windows)
 	ELSE ( ECHO $(CYAN)No binary to remove. $(RESET) )
 else
 	@$(RM) $(NAME)
-	@$(RM) $(SDL_NEW)
-	@$(RM) $(SDL_MIXER_NEW)
-	@$(RM) $(SDL_ORIG)
-	@$(RM) $(SDL_MIXER_ORIG)
-	@$(RM) SDL2_mixer-2.0.4.tar.gz
-	@$(RM) SDL2-2.0.14.tar.gz
 endif
 	@make -C libft fclean
 	@echo $(GREEN)Removed binaries and libraries.$(RESET)
